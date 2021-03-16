@@ -1,4 +1,5 @@
 import produce from 'immer';
+
 import { ActionType } from '../action-types';
 import { Action } from '../actions';
 import { Cell } from '../cell';
@@ -47,6 +48,25 @@ const reducer = produce((state: CellsState = initialState, action: Action): Cell
 			if (targetIndex < 0 || targetIndex > state.order.length - 1) return state;
 			state.order[index] = state.order[targetIndex];
 			state.order[targetIndex] = action.payload.id;
+			return state;
+		case ActionType.FETCH_CELLS:
+			state.loading=true;
+			state.error=null;
+			return state;
+		case ActionType.FETCH_CELLS_COMPLETE:
+			state.loading=false;
+			state.order=action.payload.map((cell)=>cell.id);	
+			state.data=action.payload.reduce((acc,cell)=>{
+				acc[cell.id]=cell
+				return acc;
+			},{} as CellsState['data'] )
+			return state;
+		case ActionType.FETCH_CELLS_ERROR:
+			state.loading=false;
+			state.error=action.payload;
+			return state;
+		case ActionType.SAVE_CELLS_ERROR:
+			state.error=action.payload;
 			return state;
 		default:
 			return state;
